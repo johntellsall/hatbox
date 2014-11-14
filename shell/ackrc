@@ -1,0 +1,3 @@
+--ignore-dir=migrations
+--ignore-dir=bin
+--ignore-dir=lib/python2.7
