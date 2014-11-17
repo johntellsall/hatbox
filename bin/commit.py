@@ -12,6 +12,13 @@ def get_cur_branch():
     ).rstrip()
 
 def cmd_push(args):
+    """
+    Push current branch upstream, renaming based on issue type.
+
+    commmit.py -p e
+    => git push origin HEAD:enhancements/123-my-title
+    """
+    
     ISSUE_TYPES = {
         'e': 'enhancements',
         'b': 'bugs',
@@ -23,6 +30,14 @@ def cmd_push(args):
     print 'git push origin HEAD:{}/{}'.format(name, get_cur_branch())
 
 def cmd_branch(args):
+    """
+    Given an Issue title and ID, check out a new branch.
+
+    commit.py -b ' My Title #123'
+    =>
+    git checkout -b '123-my-title'
+    """
+    
     title_pat = re.compile('(.+)#(\d+)')
     m = title_pat.search( ' '.join(args.label) )
     if not m:
@@ -35,6 +50,12 @@ def cmd_branch(args):
     label = re.sub('[\'\"]+', '', label)
     branch = '{}-{}'.format(issue_num, re.sub('\W+', '-', label))
     print 'BRANCH:', branch
+
+    if args.dry_run:
+        return
+    print subprocess.check_output(
+        ['git', 'checkout', '-b', branch],
+    )    
 
 def cmd_commit(args):
     """
@@ -50,14 +71,16 @@ def cmd_commit(args):
         
     msg = '{}, refs #{}'.format(' '.join(args.label), m.group(1) )
     print msg
-    if 1:
-        print subprocess.check_output(
-            ['git', 'commit', '-am', msg],
-        )
+    if args.dry_run:
+        return
+    print subprocess.check_output(
+        ['git', 'commit', '-am', msg],
+    )
     
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', dest='branch', action='store_true')
+    parser.add_argument('-n', dest='dry_run', action='store_true')
     parser.add_argument('-p', dest='push', action='store_true')
     parser.add_argument('label', type=str, nargs='+')
     args = parser.parse_args()
