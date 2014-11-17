@@ -27,7 +27,11 @@ def cmd_push(args):
     if not name:
         sys.exit('Usage: commit -p (issue type); ie b=bugs, e=enhancements')
         
-    print 'git push origin HEAD:{}/{}'.format(name, get_cur_branch())
+    if args.dry_run:
+        return
+    print subprocess.check_output(
+        ['git', 'push', 'origin', 'HEAD:{}/{}'.format(name, get_cur_branch())]
+    )
 
 def cmd_branch(args):
     """
@@ -65,7 +69,7 @@ def cmd_commit(args):
     """
     tux_pat = re.compile('(\d{4,}).+')
 
-    m = tux_pat.search(cur_branch)
+    m = tux_pat.search(get_cur_branch())
     if not m:
         sys.exit('Issue ID not found')
         
