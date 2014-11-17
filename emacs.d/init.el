@@ -21,7 +21,19 @@
 
 (global-set-key (kbd "C-S-<return>") 'jm-recompile)
 
+(add-to-list 'load-path "~/.emacs.d/internet")
 
+(when t
+  (autoload 'ssh-config-mode "ssh-config-mode" t)
+  (add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
+  (add-hook 'ssh-config-mode-hook 'turn-on-font-lock))
+
+(when t
+  (require 'yaml-mode)
+  (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode)))
+
+
+  
 ;; OSX tweaks:
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
 
@@ -32,3 +44,15 @@
 ;;  '(js2-basic-offset 2)  
 ;;  '(js2-bounce-indent-p t)  
 ;; )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(inhibit-startup-screen t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
