@@ -2,6 +2,17 @@
 
 '''
 commit.py -- BlackTux-related dev workflow
+
+workflow:
+	git checkout wip
+	git pull
+	# create branch based on issue ID and title
+	commit.py -b ' My Title #123'
+	# edit files
+	# commit refers to issue
+	commit.py 'fix bug'
+	# push changes upstream, to Enhancement
+	commit.py -p e
 '''
 
 import argparse, re, subprocess, sys
@@ -10,6 +21,11 @@ def get_cur_branch():
     return subprocess.check_output(
         'git rev-parse --abbrev-ref HEAD'.split()
     ).rstrip()
+
+def is_theblacktux():
+    return 'theblacktux' in subprocess.check_output(
+        'git config --get remote.origin.url'.split()
+    )
 
 def cmd_push(args):
     """
@@ -33,13 +49,13 @@ def cmd_push(args):
         ['git', 'push', 'origin', 'HEAD:{}/{}'.format(name, get_cur_branch())]
     )
 
-def cmd_branch(args):
+def cmd_checkout(args):
     """
     Given an Issue title and ID, check out a new branch.
 
-    commit.py -b ' My Title #123'
+    commit.py -c ' My Title #123'
     =>
-    git checkout -b '123-my-title'
+    git checkout -c '123-my-title'
     """
     
     title_pat = re.compile('(.+)#(\d+)')
@@ -67,30 +83,33 @@ def cmd_commit(args):
 
     USAGE: commit.py 'added beer field'
     """
-    tux_pat = re.compile('(\d{4,}).+')
 
-    m = tux_pat.search(get_cur_branch())
-    if not m:
-        sys.exit('Issue ID not found')
+    message = ' '.join(args.label)
+    if is_theblacktux():
+        tux_pat = re.compile('(\d{4,}).+')
+        m = tux_pat.search(get_cur_branch())
+        if not m:
+            sys.exit('Issue ID not found')
         
-    msg = '{}, refs #{}'.format(' '.join(args.label), m.group(1) )
-    print msg
+        message = '{}, refs #{}'.format(message, m.group(1) )
+        
+    print message
     if args.dry_run:
         return
     print subprocess.check_output(
-        ['git', 'commit', '-am', msg],
+        ['git', 'commit', '-am', message],
     )
     
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', dest='branch', action='store_true')
+    parser.add_argument('-c', '--checkout', dest='checkout', action='store_true')
     parser.add_argument('-n', dest='dry_run', action='store_true')
-    parser.add_argument('-p', dest='push', action='store_true')
+    parser.add_argument('-p', '--push', dest='push', action='store_true')
     parser.add_argument('label', type=str, nargs='+')
     args = parser.parse_args()
 
-    if args.branch:
-        return cmd_branch(args)
+    if args.checkout:
+        return cmd_checkout(args)
     elif args.push:
         return cmd_push(args)
     cmd_commit(args)

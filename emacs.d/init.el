@@ -1,3 +1,6 @@
+(cd "~/src/theblacktux")
+(add-to-list 'load-path "~/.emacs.d/internet")
+
 (when t
   (require 'ido)
   (setq ido-enable-flex-matching t
@@ -14,14 +17,13 @@
 (global-set-key (kbd "C-x c") 'compile)
 (global-set-key (kbd "C-x g") 'grep)
 
+(require 'compile)			;; define recompile
 (defun jm-recompile ()
   (interactive)
   (save-some-buffers t)
   (recompile))
-
 (global-set-key (kbd "C-S-<return>") 'jm-recompile)
 
-(add-to-list 'load-path "~/.emacs.d/internet")
 
 (when t
   (autoload 'ssh-config-mode "ssh-config-mode" t)
@@ -32,13 +34,12 @@
   (require 'yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode)))
 
-
-  
 ;; OSX tweaks:
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
 
 ;; later:
 ;; M-x package-install js2-refactor
+
 
 ;; (custom-set-variables  
 ;;  '(js2-basic-offset 2)  
