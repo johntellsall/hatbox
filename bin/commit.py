@@ -108,7 +108,7 @@ def cmd_commit(args):
     )
     
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-c', '--checkout', dest='checkout', action='store_true')
     parser.add_argument('-n', dest='dry_run', action='store_true')
     parser.add_argument('-p', '--push', dest='push', action='store_true')
