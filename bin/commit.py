@@ -29,6 +29,7 @@ def is_theblacktux():
 
 def runproc(commands):
     try:
+        assert isinstance(commands, list)
         print subprocess.check_output(commands)
     except subprocess.CalledProcessError, err:
         print "command:", ' '.join(err.cmd)
@@ -52,7 +53,7 @@ def cmd_push(args):
         
     if args.dry_run:
         return
-    print runproc(
+    runproc(
         ['git', 'push', 'origin', 'HEAD:{}/{}'.format(name, get_cur_branch())]
     )
 
@@ -80,7 +81,7 @@ def cmd_checkout(args):
 
     if args.dry_run:
         return
-    print subprocess.check_output(
+    runproc(
         ['git', 'checkout', '-b', branch],
     )    
 
@@ -103,10 +104,11 @@ def cmd_commit(args):
     print message
     if args.dry_run:
         return
-    print subprocess.check_output(
+    runproc(
         ['git', 'commit', '-am', message],
     )
-    
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-c', '--checkout', dest='checkout', action='store_true')
