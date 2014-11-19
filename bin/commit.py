@@ -12,7 +12,7 @@ workflow:
 	# commit refers to issue
 	commit.py 'fix bug'
 	# push changes upstream, to Enhancement
-	commit.py -p e
+	commit.py --push e
 '''
 
 import argparse, re, subprocess, sys
@@ -27,6 +27,13 @@ def is_theblacktux():
         'git config --get remote.origin.url'.split()
     )
 
+def runproc(commands):
+    try:
+        print subprocess.check_output(commands)
+    except subprocess.CalledProcessError, err:
+        print "command:", ' '.join(err.cmd)
+        raise
+        
 def cmd_push(args):
     """
     Push current branch upstream, renaming based on issue type.
@@ -45,7 +52,7 @@ def cmd_push(args):
         
     if args.dry_run:
         return
-    print subprocess.check_output(
+    print runproc(
         ['git', 'push', 'origin', 'HEAD:{}/{}'.format(name, get_cur_branch())]
     )
 
