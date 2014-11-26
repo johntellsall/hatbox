@@ -1,3 +1,5 @@
+;; TODO: Sass mode
+
 (cd "~/src/theblacktux")
 (add-to-list 'load-path "~/.emacs.d/internet")
 
@@ -39,6 +41,10 @@
 
 ;; later:
 ;; M-x package-install js2-refactor
+(when t
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
 
 
 ;; (custom-set-variables  
@@ -57,3 +63,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'narrow-to-region 'disabled nil)
