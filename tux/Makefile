@@ -1,19 +1,36 @@
 SHELL := /bin/bash
+ACK := /usr/local/bin/ack
+CTAGS := /usr/local/bin/ctags
 PROJ := ~/src/theblacktux
 
-# VENV := . $(VIRTUAL_ENV)/bin/activate
+# cd ~/src/theblacktux ; REUSE_DB=1 ./bin/python ./manage.py test tests.test_models:TestUser_SendWelcomeEmailAsGroomsman -s
+# cd ~/src/theblacktux ; REUSE_DB=1 ./bin/python ./manage.py test tests.test_integrations -s
+# clear; time ./bin/python ./manage.py test --with-flaky --nose-verbosity=3
+
 all:
+
+zoot:
+	REUSE_DB=1 coverage run ./manage.py test `ls -1t tests/test_*.py | head -1`
+	coverage report -m app/mandrill.py
+
+mlist:
+	./manage.py migrate --list
+
+firsttest:
+	../johnm/resetdb
+	yes yes | ./bin/python ./manage.py test --nose-verbosity=3 $(TESTARG)
+test:
+	yes yes | REUSE_DB=1 ./bin/python ./manage.py test --nose-verbosity=3 $(TESTARG)
 
 last:
 	cd $(PROJ) ; REUSE_DB=1 ./bin/python \
 	./manage.py test \
-	`ls -1t tests/*.py | head -1`
+	`ls -1t tests/test_*.py | head -1`
 
 clean:
-	find . -name '*.pyc' | xargs rm
+	find . -name '*.pyc' -exec rm  {} \;
+	$(RM) -r htmlcov cover.txt
 
-test:
-	$(VIRTUAL_ENV)/bin/python manage.py test
 
 stop:
 	-kill `lsof -ti :5000`
@@ -21,20 +38,18 @@ stop:
 
 start: stop
 	compass watch &
-	./manage.py runserver 5000
-
-#	ctags-exuberant -e `ack --py -l .`
+	./manage.py runserver 0:5000
 
 .PHONY: .srcpaths
 .srcpaths:
-	ack --py -l . > $@
-	find lib/*/site*/{dbf,django}* -name '*.py' >> $@
+	$(ACK) --py -l . > $@
+	find lib/*/site*/{dbf,django,lionheart,nose}* -name '*.py' >> $@
 	wc -l $@
 
 # brew install ctags-exuberant
 .PHONY: tags
 tags:	.srcpaths
-	ctags -e -L .srcpaths
+	$(CTAGS) -e -L .srcpaths
 	@wc -l TAGS
 
 
