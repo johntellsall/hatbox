@@ -6,10 +6,10 @@ commit.py -- BlackTux-related dev workflow
 workflow:
 	git checkout wip
 	git pull
-	# create branch based on issue ID and title
-	commit.py -b ' My Title #123'
+	# check out new branch based on issue ID and title
+	commit.py -c ' My Title #123'
 	# edit files
-	# commit refers to issue
+	# commit message refers to issue
 	commit.py 'fix bug'
 	# push changes upstream, to Enhancement
 	commit.py --push e
@@ -26,6 +26,11 @@ def get_cur_branch():
     return subprocess.check_output(
         'git rev-parse --abbrev-ref HEAD'.split()
     ).rstrip()
+
+def get_issue_num():
+    tux_pat = re.compile('(\d{4,}).+')
+    m = tux_pat.search(get_cur_branch())
+    return m.group(1) if m else None
 
 def is_theblacktux():
     return 'theblacktux' in subprocess.check_output(
@@ -75,14 +80,14 @@ def cmd_commit(args):
     USAGE: commit.py 'added beer field'
     """
 
+    issue_num = get_issue_num()
+    if not args.label:
+        print 'ISSUE:',issue_num
+        return
+    
     message = ' '.join(args.label)
-    if is_theblacktux():
-        tux_pat = re.compile('(\d{4,}).+')
-        m = tux_pat.search(get_cur_branch())
-        if not m:
-            sys.exit('Issue ID not found')
-        
-        message = '{}, refs #{}'.format(message, m.group(1) )
+    if issue_num:
+        message = '{}, refs #{}'.format(message, issue_num)
         
     print message
     if args.dry_run:
@@ -124,7 +129,7 @@ def main():
     parser.add_argument('--delete', action='store_const', const=cmd_delete, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
     parser.add_argument('-p', '--push', action='store_const', const=cmd_push, dest='func')
-    parser.add_argument('label', type=str, nargs='+')
+    parser.add_argument('label', type=str, nargs='*')
     args = parser.parse_args()
 
     if args.func:
