@@ -28,7 +28,7 @@ def get_cur_branch():
     ).rstrip()
 
 def get_issue_num():
-    tux_pat = re.compile('(\d{4,}).+')
+    tux_pat = re.compile(r'(\d{4,}).+')
     m = tux_pat.search(get_cur_branch())
     return m.group(1) if m else None
 
@@ -54,7 +54,7 @@ def cmd_checkout(args):
     git checkout -c '123-my-title'
     """
     
-    title_pat = re.compile('(.+)#(\d+)')
+    title_pat = re.compile(r'(.+)#(\d+)')
     m = title_pat.search( ' '.join(args.label) )
     if not m:
         print '?'
@@ -63,14 +63,14 @@ def cmd_checkout(args):
     issue_num = m.group(2)
     print 'ISSUE:',issue_num
 
-    label = re.sub('[\'\"]+', '', label)
-    branch = '{}-{}'.format(issue_num, re.sub('\W+', '-', label))
+    label = re.sub(r'[\'\"]+', '', label)
+    branch = '{}-{}'.format(issue_num, re.sub(r'\W+', '-', label))
     print 'BRANCH:', branch
 
     if args.dry_run:
         return
     runproc(
-        ['git', 'checkout', '-b', branch],
+        ['git', 'checkout', '-b', branch, 'origin/wip'],
     )    
 
 def cmd_commit(args):
