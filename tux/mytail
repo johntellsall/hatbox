@@ -1,0 +1,21 @@
+# STRIP:
+# postgesql: reset by peer
+# theblacktux.err: client closed, buffered to a temporary file
+
+multitail \
+/var/log/postgresql/postgresql-9.3-main.log \
+/var/log/nginx/theblacktux.log \
+/var/log/nginx/error.log \
+/var/log/nginx/theblacktux.err
+
+
+
+# also
+# /var/log/gunicorn.log
+
+# /var/log/nginx/theblacktux.log 
+#
+# locate 'log' | egrep -v logrotate | xargs ls -1tl | head -20
+
+# locate 'log' | egrep log$ | xargs ls -1tl | head
+
