@@ -4,9 +4,9 @@
 commit.py -- BlackTux-related dev workflow
 
 workflow:
-	git checkout wip
-	git pull
+	git fetch origin
 	# check out new branch based on issue ID and title
+	# Parent will be origin/wip
 	commit.py -c ' My Title #123'
 	# edit files
 	# commit message refers to issue
@@ -42,19 +42,21 @@ def runproc(commands):
         assert isinstance(commands, list)
         print subprocess.check_output(commands)
     except subprocess.CalledProcessError, err:
-        print "command:", ' '.join(err.cmd)
+        print "ERROR: command:", ' '.join(err.cmd)
+        print 'OUTPUT:', err.output
         raise
         
 def cmd_checkout(args):
     """
     Given an Issue title and ID, check out a new branch.
+    Issue "number" can have trailing letters.
 
-    commit.py -c ' My Title #123'
+    commit.py -c ' My Title #123b'
     =>
-    git checkout -c '123-my-title'
+    git checkout -c '123b-my-title'
     """
     
-    title_pat = re.compile(r'(.+)#(\d+)')
+    title_pat = re.compile(r'(.+)#(\d{3,}[a-z]*)')
     m = title_pat.search( ' '.join(args.label) )
     if not m:
         print '?'
@@ -64,7 +66,8 @@ def cmd_checkout(args):
     print 'ISSUE:',issue_num
 
     label = re.sub(r'[\'\"]+', '', label)
-    branch = '{}-{}'.format(issue_num, re.sub(r'\W+', '-', label))
+    label = re.sub(r'^-+', '', re.sub(r'\W+', '-', label))
+    branch = '{}-{}'.format(issue_num, label)
     print 'BRANCH:', branch
 
     if args.dry_run:

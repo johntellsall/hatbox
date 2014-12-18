@@ -1,7 +1,9 @@
-;; TODO: Sass mode
-
 (cd "~/src/theblacktux")
+;; (cd "~/src/tux_wip")
 (add-to-list 'load-path "~/.emacs.d/internet")
+
+;; (when t
+;;   (setq tramp-default-method "ssh"))
 
 (when t
   (require 'ido)
@@ -26,6 +28,9 @@
   (recompile))
 (global-set-key (kbd "C-S-<return>") 'jm-recompile)
 
+;; (when t
+;;   (require 'dockerfile-mode)
+;;   (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
 
 (when t
   (autoload 'ssh-config-mode "ssh-config-mode" t)
@@ -46,6 +51,14 @@
   (package-initialize)
   (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
 
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+(when t
+  (require 'sass-mode)
+  (add-to-list 'auto-mode-alist '("\\.scss\\'" . sass-mode)))
+
+(require 'ack)
 
 ;; (custom-set-variables  
 ;;  '(js2-basic-offset 2)  

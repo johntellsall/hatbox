@@ -9,6 +9,11 @@ PROJ := ~/src/theblacktux
 
 all:
 
+# X: todo: logs
+# zap 'virtualenv' artifacts
+distclean:
+	$(RM) -r lib/ bin/
+
 zoot:
 	REUSE_DB=1 coverage run ./manage.py test `ls -1t tests/test_*.py | head -1`
 	coverage report -m app/mandrill.py
@@ -40,10 +45,14 @@ start: stop
 	compass watch &
 	./manage.py runserver 0:5000
 
+# find lib/*/site*/{dbf,django,lionheart,nose}* -name '*.py' >> $@
+
+# XX:
+VENV_SITE := /Users/johnm/src/venv/lib/*/site*
 .PHONY: .srcpaths
 .srcpaths:
 	$(ACK) --py -l . > $@
-	find lib/*/site*/{dbf,django,lionheart,nose}* -name '*.py' >> $@
+	find $(VENV_SITE)/{django,lionheart}* -name '*.py' >> $@
 	wc -l $@
 
 # brew install ctags-exuberant
