@@ -2,5 +2,6 @@
 --ignore-dir=bin
 --ignore-dir=htmlcov
 --ignore-dir=lib/python2.7
+--ignore-file=ext:pyc
 --ignore-file=is:TAGS
 --type-set=css:ext:scss
