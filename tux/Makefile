@@ -2,6 +2,7 @@ SHELL := /bin/bash
 ACK := /usr/local/bin/ack
 CTAGS := /usr/local/bin/ctags
 PROJ := ~/src/theblacktux
+VBIN := $(VIRTUAL_ENV)/bin
 
 # cd ~/src/theblacktux ; REUSE_DB=1 ./bin/python ./manage.py test tests.test_models:TestUser_SendWelcomeEmailAsGroomsman -s
 # cd ~/src/theblacktux ; REUSE_DB=1 ./bin/python ./manage.py test tests.test_integrations -s
@@ -23,12 +24,12 @@ mlist:
 
 firsttest:
 	../johnm/resetdb
-	yes yes | ./bin/python ./manage.py test --nose-verbosity=3 $(TESTARG)
+	yes yes | $(VBIN)/python ./manage.py test --nose-verbosity=3 $(TESTARG)
 test:
-	yes yes | REUSE_DB=1 ./bin/python ./manage.py test --nose-verbosity=3 $(TESTARG)
+	yes yes | REUSE_DB=1 $(VBIN)/python ./manage.py test --nose-verbosity=3 $(TESTARG)
 
 last:
-	cd $(PROJ) ; REUSE_DB=1 ./bin/python \
+	cd $(PROJ) ; REUSE_DB=1 $(VBIN)/python \
 	./manage.py test \
 	`ls -1t tests/test_*.py | head -1`
 
