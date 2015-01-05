@@ -99,14 +99,7 @@ def cmd_commit(args):
         ['git', 'commit', '-am', message],
     )
 
-def cmd_delete(args):
-    name = ISSUE_TYPES.get(args.label[0])
-    if not name:
-        sys.exit('Usage: commit --delete (issue type); ie b=bugs, e=enhancements')
-        
-    print ' '.join(['git', 'push', 'origin', '--delete', '{}/{}'.format(name, get_cur_branch())])
-
-    
+   
 def cmd_push(args):
     """
     Push current branch upstream, renaming based on issue type.
@@ -129,7 +122,6 @@ def cmd_push(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-c', '--checkout', action='store_const', const=cmd_checkout, dest='func')
-    parser.add_argument('--delete', action='store_const', const=cmd_delete, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
     parser.add_argument('-p', '--push', action='store_const', const=cmd_push, dest='func')
     parser.add_argument('label', type=str, nargs='*')
