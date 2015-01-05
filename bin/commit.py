@@ -119,9 +119,17 @@ def cmd_push(args):
         ['git', 'push', 'origin', 'HEAD:{}/{}'.format(name, get_cur_branch())]
     )
 
+def cmd_stage_merge(args):
+    runproc('git fetch origin'.split())
+    runproc('git branch -d staging'.split())
+    runproc('git checkout -b staging origin/staging'.split())
+# git merge --no-ff (mybranch)
+# git push
+    
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-c', '--checkout', action='store_const', const=cmd_checkout, dest='func')
+    parser.add_argument('--zoot', action='store_const', const=cmd_stage_merge, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
     parser.add_argument('-p', '--push', action='store_const', const=cmd_push, dest='func')
     parser.add_argument('label', type=str, nargs='*')
