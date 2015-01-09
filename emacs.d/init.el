@@ -1,18 +1,16 @@
+;;; init.el -- John's Emacs setup file
+;;;
+
 (cd "~/src/theblacktux")
 ;; (cd "~/src/tux_wip")
 (add-to-list 'load-path "~/.emacs.d/internet")
 
-;; (when t
-;;   (setq tramp-default-method "ssh"))
-
 (when t
-  (require 'ido)
-  (setq ido-enable-flex-matching t
-	ido-everywhere t)
-  (ido-mode t))
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 (global-set-key (kbd "<f7>") '(lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 (global-set-key (kbd "<f8>") 'bury-buffer)
@@ -21,12 +19,30 @@
 (global-set-key (kbd "C-x c") 'compile)
 (global-set-key (kbd "C-x g") 'grep)
 
+;; OSX tweaks:
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+
 (require 'compile)			;; define recompile
 (defun jm-recompile ()
   (interactive)
   (save-some-buffers t)
   (recompile))
 (global-set-key (kbd "C-S-<return>") 'jm-recompile)
+
+
+;; :::::::::::::::::::::::::::::::::::::::::::::::::: PACKAGE TWEAKS
+
+(when t
+  (require 'ido)
+  (setq ido-enable-flex-matching t
+	ido-everywhere t)
+  (ido-mode t))
+
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+(when t
+  (add-to-list 'auto-mode-alist '("\\.ngx\\'" . nginx-mode)))
+
 
 ;; (when t
 ;;   (require 'dockerfile-mode)
@@ -41,16 +57,8 @@
   (require 'yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode)))
 
-;; OSX tweaks:
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-
 ;; later:
 ;; M-x package-install js2-refactor
-(when t
-  (require 'package)
-  (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
-
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
