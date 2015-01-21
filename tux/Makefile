@@ -2,7 +2,10 @@ SHELL := /bin/bash
 ACK := /usr/local/bin/ack
 CTAGS := /usr/local/bin/ctags
 PROJ := ~/src/theblacktux
+# TODO: allow env override
+VIRTUAL_ENV := /Users/johnm/src/venv
 VBIN := $(VIRTUAL_ENV)/bin
+VENV_SITE := $(VIRTUAL_ENV)/lib/*/site*
 
 # cd ~/src/theblacktux ; REUSE_DB=1 ./bin/python ./manage.py test tests.test_models:TestUser_SendWelcomeEmailAsGroomsman -s
 # cd ~/src/theblacktux ; REUSE_DB=1 ./bin/python ./manage.py test tests.test_integrations -s
@@ -38,9 +41,10 @@ clean:
 	$(RM) -r htmlcov cover.txt
 
 
+# TODO: stop 'compass' not ruby
 stop:
 	-kill `lsof -ti :5000`
-	-killall compass
+	-killall ruby
 
 start: stop
 	compass watch &
@@ -48,12 +52,12 @@ start: stop
 
 # find lib/*/site*/{dbf,django,lionheart,nose}* -name '*.py' >> $@
 
-# XX:
-VENV_SITE := /Users/johnm/src/venv/lib/*/site*
+
 .PHONY: .srcpaths
 .srcpaths:
 	$(ACK) --py -l . > $@
-	find $(VENV_SITE)/{django,lionheart}* -name '*.py' >> $@
+	find $(VENV_SITE)/{django,lionheart,raven,static}* -name '*.py' >> $@
+	find ../fig -name '*.py' >> $@
 	wc -l $@
 
 # brew install ctags-exuberant
