@@ -29,8 +29,8 @@ def get_cur_branch():
 
 def get_issue_num():
     tux_pat = re.compile(r'(\d{4,}).+')
-    m = tux_pat.search(get_cur_branch())
-    return m.group(1) if m else None
+    match = tux_pat.search(get_cur_branch())
+    return match.group(1) if match else None
 
 def is_theblacktux():
     return 'theblacktux' in subprocess.check_output(
@@ -40,7 +40,7 @@ def is_theblacktux():
 def runproc(commands, ignore_error=False, verbose=True):
     try:
         assert isinstance(commands, list)
-        print '>>>',' '.join(commands)
+        print '>>>', ' '.join(commands)
         print subprocess.check_output(commands)
     except subprocess.CalledProcessError, err:
         if ignore_error:
@@ -48,7 +48,7 @@ def runproc(commands, ignore_error=False, verbose=True):
         print "ERROR: command:", ' '.join(err.cmd)
         print 'OUTPUT:', err.output
         raise
-        
+
 def cmd_checkout(args):
     """
     Given an Issue title and ID, check out a new branch.
@@ -58,15 +58,15 @@ def cmd_checkout(args):
     =>
     git checkout -c '123b-my-title'
     """
-    
+
     title_pat = re.compile(r'(.+)#(\d{3,}[a-z]*)')
-    m = title_pat.search( ' '.join(args.label) )
+    m = title_pat.search(' '.join(args.label))
     if not m:
         print '?'
         return
     label = m.group(1).strip().lower()
     issue_num = m.group(2)
-    print 'ISSUE:',issue_num
+    print 'ISSUE:', issue_num
 
     label = re.sub(r'[\'\"]+', '', label)
     label = re.sub(r'^-+', '', re.sub(r'\W+', '-', label))
@@ -77,7 +77,7 @@ def cmd_checkout(args):
         return
     runproc(
         ['git', 'checkout', '-b', branch, 'origin/wip'],
-    )    
+    )
 
 def cmd_commit(args):
     """
@@ -88,13 +88,13 @@ def cmd_commit(args):
 
     issue_num = get_issue_num()
     if not args.label:
-        print 'ISSUE:',issue_num
+        print 'ISSUE:', issue_num
         return
-    
+
     message = ' '.join(args.label)
     if issue_num:
         message = '{}, refs #{}'.format(message, issue_num)
-        
+
     print message
     if args.dry_run:
         return
@@ -102,7 +102,6 @@ def cmd_commit(args):
         ['git', 'commit', '-am', message],
     )
 
-   
 def cmd_push(args):
     """
     Push current branch upstream, renaming based on issue type.
@@ -110,34 +109,36 @@ def cmd_push(args):
     commmit.py -p e
     => git push origin HEAD:enhancements/123-my-title
     """
-    
- 
+
     name = ISSUE_TYPES.get(args.label[0])
     if not name:
         sys.exit('Usage: commit -p (issue type); ie b=bugs, e=enhancements')
-        
+
     if args.dry_run:
         return
     runproc(
         ['git', 'push', 'origin', 'HEAD:{}/{}'.format(name, get_cur_branch())]
     )
 
-def cmd_stage_merge(args):
+def cmd_stage_merge(args):      # pylint: disable=W0613
     cur_branch = get_cur_branch()
-    print 'CURRENT:',cur_branch
+    print 'CURRENT:', cur_branch
     runproc('git fetch origin'.split())
     runproc('git branch -D staging'.split(), ignore_error=True)
     runproc('git checkout -b staging origin/staging'.split())
     runproc('git merge --no-ff'.split() + [cur_branch])
     print '# git push'
-    # '# fab -H theblacktux-staging deploy'
-    
+    print '# fab -H theblacktux-staging deploy'
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-c', '--checkout', action='store_const', const=cmd_checkout, dest='func')
-    parser.add_argument('--zoot', action='store_const', const=cmd_stage_merge, dest='func')
+    parser.add_argument('-c', '--checkout', action='store_const',
+                        const=cmd_checkout, dest='func')
+    parser.add_argument('--stagemerge', action='store_const',
+                        const=cmd_stage_merge, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
-    parser.add_argument('-p', '--push', action='store_const', const=cmd_push, dest='func')
+    parser.add_argument('-p', '--push', action='store_const',
+                        const=cmd_push, dest='func')
     parser.add_argument('label', type=str, nargs='*')
     args = parser.parse_args()
 
@@ -145,7 +146,7 @@ def main():
         return args.func(args)
     else:
         return cmd_commit(args)
-    
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()
 
