@@ -37,11 +37,14 @@ def is_theblacktux():
         'git config --get remote.origin.url'.split()
     )
 
-def runproc(commands):
+def runproc(commands, ignore_error=False, verbose=True):
     try:
         assert isinstance(commands, list)
+        print '>>>',' '.join(commands)
         print subprocess.check_output(commands)
     except subprocess.CalledProcessError, err:
+        if ignore_error:
+            return
         print "ERROR: command:", ' '.join(err.cmd)
         print 'OUTPUT:', err.output
         raise
@@ -120,11 +123,14 @@ def cmd_push(args):
     )
 
 def cmd_stage_merge(args):
+    cur_branch = get_cur_branch()
+    print 'CURRENT:',cur_branch
     runproc('git fetch origin'.split())
-    runproc('git branch -d staging'.split())
+    runproc('git branch -D staging'.split(), ignore_error=True)
     runproc('git checkout -b staging origin/staging'.split())
-# git merge --no-ff (mybranch)
-# git push
+    runproc('git merge --no-ff'.split() + [cur_branch])
+    print '# git push'
+    # '# fab -H theblacktux-staging deploy'
     
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
