@@ -2,7 +2,6 @@
 ;;;
 
 (cd "~/src/theblacktux")
-;; (cd "~/src/tux_wip")
 (add-to-list 'load-path "~/.emacs.d/internet")
 
 (when t
@@ -32,6 +31,10 @@
 
 ;; :::::::::::::::::::::::::::::::::::::::::::::::::: PACKAGE TWEAKS
 
+(require 'ack)
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
 (when t
   (require 'ido)
   (setq ido-enable-flex-matching t
@@ -41,12 +44,20 @@
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 (when t
+  (add-to-list 'auto-mode-alist '("\\.mak\\'" . makefile-nmake-mode) auto-mode-alist))
+
+(when t
   (add-to-list 'auto-mode-alist '("\\.ngx\\'" . nginx-mode)))
+
 
 
 ;; (when t
 ;;   (require 'dockerfile-mode)
 ;;   (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
+
+(when t
+  (require 'sass-mode)
+  (add-to-list 'auto-mode-alist '("\\.scss\\'" . sass-mode)))
 
 (when t
   (autoload 'ssh-config-mode "ssh-config-mode" t)
@@ -59,14 +70,6 @@
 
 ;; later:
 ;; M-x package-install js2-refactor
-
-(add-hook 'after-init-hook #'global-flycheck-mode)
-
-(when t
-  (require 'sass-mode)
-  (add-to-list 'auto-mode-alist '("\\.scss\\'" . sass-mode)))
-
-(require 'ack)
 
 ;; (custom-set-variables  
 ;;  '(js2-basic-offset 2)  
