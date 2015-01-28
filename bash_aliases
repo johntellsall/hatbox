@@ -1,5 +1,8 @@
 # -*- shell-script -*-
 
+[[ -f /etc/lsb-release ]]
+is_linux=$?
+
 # :::::::::::::::::::::::::::::::::::::::::::::::::: COMPLETIONS
 if [[ "$USER" = 'johnm' ]] ; then
     . `brew --repository`/Library/Contributions/brew_bash_completion.sh
@@ -43,25 +46,30 @@ alias gst='git status'
 # see http://www.kartar.net/2014/03/some-useful-docker-bash-functions-and-aliases/
 # TODO: docker logs $(docker ps -a | awk '/docker-gen/ {print $1; exit}')
 
+docker='docker'
+if [[ $is_linux ]] ; then
+    docker='sudo docker'
+fi
+
 function dent {
-docker exec -i -t $1 /bin/bash
+$dsudo docker exec -i -t $1 /bin/bash
 }
 complete -F _docker_exec dent
 
 # TODO: make work with more/less than single match
 function denti {
-docker exec -i -t $(docker ps | awk '/'$1'.*Up/ {print $1}') /bin/bash
+$docker exec -i -t $($docker ps | awk '/'$1'.*Up/ {print $1}') /bin/bash
 }
 complete -F _docker_exec denti
 # TODO: make work with more/less than single match
 function dentic {
-docker exec -i -t $(docker ps | awk '/'$1'.*Up/ {print $1}') $2 $3 $4 $5
+$docker exec -i -t $($docker ps | awk '/'$1'.*Up/ {print $1}') $2 $3 $4 $5
 }
 complete -F _docker_exec dentic
 
 # run bash for any image
 function dbash {
-docker run --rm -i -t -e TERM=xterm --entrypoint /bin/bash $1 
+$docker run --rm -i -t -e TERM=xterm --entrypoint /bin/bash $1 
 }
 complete -F _docker_images dbash
 alias dps='docker ps'
