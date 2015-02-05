@@ -28,7 +28,6 @@
   (recompile))
 (global-set-key (kbd "C-S-<return>") 'jm-recompile)
 
-
 ;; :::::::::::::::::::::::::::::::::::::::::::::::::: PACKAGE TWEAKS
 
 (require 'ack)
@@ -37,8 +36,8 @@
 
 (when t
   (require 'ido)
-  (setq ido-enable-flex-matching t
-	ido-everywhere t)
+  (setq ido-enable-flex-matching t)
+  (ido-everywhere)
   (ido-mode t))
 
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
@@ -48,6 +47,8 @@
 
 (when t
   (add-to-list 'auto-mode-alist '("\\.ngx\\'" . nginx-mode)))
+
+(which-function-mode)
 
 
 
@@ -68,6 +69,14 @@
   (require 'yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode)))
 
+;; :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: CUSTOM
+;; TODO: flycheck-error
+
+(defun jta-highlight-django-template ()
+  (interactive)
+  (highlight-regexp "{%.+%}" 'hi-yellow) ;;tags
+  (highlight-regexp "{{.+?}}" 'underline)) ;;variables
+
 ;; later:
 ;; M-x package-install js2-refactor
 
@@ -80,7 +89,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-screen t))
+ '(inhibit-startup-screen t)
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -88,3 +98,4 @@
  ;; If there is more than one, they won't work right.
  )
 (put 'narrow-to-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
