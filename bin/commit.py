@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# pylint: disable=C0111
+
 '''
 commit.py -- BlackTux-related dev workflow
 
@@ -130,12 +132,20 @@ def cmd_stage_merge(args):      # pylint: disable=W0613
     print '# git push'
     print '# fab -H theblacktux-staging deploy'
 
+def cmd_merge_wip(args):      # pylint: disable=W0613
+    cur_branch = get_cur_branch()
+    print 'CURRENT:', cur_branch
+    runproc('git fetch origin'.split())
+    runproc('git merge --no-ff origin/wip'.split())
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-c', '--checkout', action='store_const',
                         const=cmd_checkout, dest='func')
     parser.add_argument('--stagemerge', action='store_const',
                         const=cmd_stage_merge, dest='func')
+    parser.add_argument('--wip', action='store_const',
+                        const=cmd_merge_wip, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
     parser.add_argument('-p', '--push', action='store_const',
                         const=cmd_push, dest='func')
