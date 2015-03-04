@@ -32,6 +32,15 @@
 
 (require 'ack)
 
+;; colorize compliation buffers
+(ignore-errors
+  (require 'ansi-color)
+  (defun my-colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
+
+
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 (when t
@@ -47,6 +56,7 @@
 
 (when t
   (add-to-list 'auto-mode-alist '("\\.ngx\\'" . nginx-mode)))
+
 
 (which-function-mode)
 
@@ -72,6 +82,8 @@
 ;; :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: CUSTOM
 ;; TODO: flycheck-error
 
+
+
 (defun jta-highlight-django-template ()
   (interactive)
   (highlight-regexp "{%.+%}" 'hi-yellow) ;;tags
@@ -89,6 +101,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(flycheck-python-pylint-executable "/Users/johnm/src/venv/bin/pylint")
  '(inhibit-startup-screen t)
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -99,3 +112,18 @@
  )
 (put 'narrow-to-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
+
+;; highlight Django model references:
+;; # Hi-lock: (("through" (0 (quote hi-pink) prepend)))
+;; # Hi-lock: (("ManyToManyField" (0 (quote hi-yellow) prepend)))
+;; # Hi-lock: (("related_name" (0 (quote hi-pink) prepend)))
+;; # Hi-lock: (("ForeignKey" (0 (quote hi-yellow) prepend)))
+
+
+;; XXXX
+;; (defface font-lock-operator-face
+;;   '((((class color)
+;;       :background "darkseagreen2")))
+;;   "Basic face for highlighting."
+;;   :group 'basic-faces)
