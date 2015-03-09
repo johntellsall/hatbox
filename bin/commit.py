@@ -6,7 +6,6 @@
 commit.py -- BlackTux-related dev workflow
 
 workflow:
-	git fetch origin
 	# check out new branch based on issue ID and title
 	# Parent will be origin/wip
 	commit.py -c ' My Title #123'
@@ -43,7 +42,8 @@ def runproc(commands, ignore_error=False, verbose=True):
     try:
         assert isinstance(commands, list)
         print '>>>', ' '.join(commands)
-        print subprocess.check_output(commands)
+        if verbose:
+            print subprocess.check_output(commands)
     except subprocess.CalledProcessError, err:
         if ignore_error:
             return
@@ -61,6 +61,7 @@ def cmd_checkout(args):
     git checkout -c '123b-my-title'
     """
 
+    parent_branch = None # 'origin/wip'
     title_pat = re.compile(r'(.+)#(\d{3,}[a-z]*)')
     m = title_pat.search(' '.join(args.label))
     if not m:
@@ -71,15 +72,16 @@ def cmd_checkout(args):
     print 'ISSUE:', issue_num
 
     label = re.sub(r'[\'\"]+', '', label)
-    label = re.sub(r'^-+', '', re.sub(r'\W+', '-', label))
+    label = re.sub(r'\W+', '-', label).strip('-')
     branch = '{}-{}'.format(issue_num, label)
     print 'BRANCH:', branch
 
     if args.dry_run:
         return
-    runproc(
-        ['git', 'checkout', '-b', branch, 'origin/wip'],
-    )
+    cmd = ['git', 'checkout', '-b', branch]
+    if parent_branch:
+        cmd.append(parent_branch)
+    runproc(cmd)
 
 def cmd_commit(args):
     """
