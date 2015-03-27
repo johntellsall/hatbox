@@ -19,4 +19,4 @@ export HISTSIZE=''
 
 export WORKON_HOME=~/Envs
 
-cd ~/src/theblacktux/
+[[ -d ~/src/theblacktux/ ]] && cd ~/src/theblacktux/
