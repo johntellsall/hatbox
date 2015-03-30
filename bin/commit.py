@@ -80,9 +80,14 @@ def cmd_checkout(args):
     Given an Issue title and ID, check out a new branch based off origin/wip.
     Option "--nowip" means new branch will be based on current branch.
 
+    NORMAL BRANCH (OFF WIP)
     commit.py -c ' My Title #123b'
-    =>
-    git checkout -c '123b-my-title'
+    => git checkout -c '123b-my-title' origin/wip
+
+    CONTINUING A BRANCH
+    git checkout 2186-simple-line-items-modeling
+    commit.py -c --nowip 'Line Item vs Checkout #2187'
+    => git checkout -b 2187-line-item-vs-checkout 2186-simple-line-items-modeling
     """
 
     parent_branch = get_cur_branch() if args.nowip else 'origin/wip'
