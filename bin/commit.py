@@ -12,11 +12,23 @@ workflow:
 	# edit files
 	# commit message refers to issue
 	commit.py 'fix bug'
+	# ... on a single file
+	commit.py 'fix bug' misc/beer.py
 	# push changes upstream, to Enhancement
 	commit.py --push e
+
+Merge origin wip into local branch:
+	commit.py --wip
+
+Checkout staging, merge branch into it:
+	commit.py --stage
 '''
 
-import argparse, re, subprocess, sys
+import argparse
+import os
+import re
+import subprocess
+import sys
 
 ISSUE_TYPES = {
     'e': 'enhancements',
@@ -51,43 +63,61 @@ def runproc(commands, ignore_error=False, verbose=True):
         print 'OUTPUT:', err.output
         raise
 
+def split_message_paths(args):
+    words = list(args)          # copy
+    paths = []
+    while words:
+        if not os.path.exists(words[-1]):
+            break
+        paths.append(words.pop())
+    return words, paths
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::: COMMANDS
+
+
 def cmd_checkout(args):
     """
-    Given an Issue title and ID, check out a new branch.
-    Issue "number" can have trailing letters.
+    Given an Issue title and ID, check out a new branch based off origin/wip.
+    Option "--nowip" means new branch will be based on current branch.
 
     commit.py -c ' My Title #123b'
     =>
     git checkout -c '123b-my-title'
     """
 
-    parent_branch = None # 'origin/wip'
+    parent_branch = get_cur_branch() if args.nowip else 'origin/wip'
+
     title_pat = re.compile(r'(.+)#(\d{3,}[a-z]*)')
-    m = title_pat.search(' '.join(args.label))
-    if not m:
+    titlem = title_pat.search(' '.join(args.label))
+    if not titlem:
         print '?'
         return
-    label = m.group(1).strip().lower()
-    issue_num = m.group(2)
-    print 'ISSUE:', issue_num
+    label = titlem.group(1).strip().lower()
+    issue_num = titlem.group(2)
 
     label = re.sub(r'[\'\"]+', '', label)
     label = re.sub(r'\W+', '-', label).strip('-')
     branch = '{}-{}'.format(issue_num, label)
+
+    print 'ISSUE:', issue_num
+    print 'PARENT:', parent_branch
     print 'BRANCH:', branch
 
-    if args.dry_run:
-        return
     cmd = ['git', 'checkout', '-b', branch]
     if parent_branch:
         cmd.append(parent_branch)
+
+    if args.dry_run:
+        print ' '.join(cmd)
+        return
     runproc(cmd)
+
 
 def cmd_commit(args):
     """
     commit changes, annotated with GitHub issue number.
 
-    USAGE: commit.py 'added beer field'
+    USAGE: commit.py 'added beer field' [file...]
     """
 
     issue_num = get_issue_num()
@@ -95,16 +125,19 @@ def cmd_commit(args):
         print 'ISSUE:', issue_num
         return
 
-    message = ' '.join(args.label)
+    words, paths = split_message_paths(args.label)
+    message = ' '.join(words)
     if issue_num:
         message = '{}, refs #{}'.format(message, issue_num)
 
     print message
+    if paths:
+        print '\t', ' '.join(paths)
     if args.dry_run:
         return
-    runproc(
-        ['git', 'commit', '-am', message],
-    )
+
+    git_opts = '-m' if paths else '-am'
+    runproc(['git', 'commit', git_opts, message] + paths)
 
 def cmd_push(args):
     """
@@ -130,6 +163,7 @@ def cmd_stage_merge(args):      # pylint: disable=W0613
     runproc('git fetch origin'.split())
     runproc('git branch -D staging'.split(), ignore_error=True)
     runproc('git checkout -b staging origin/staging'.split())
+    runproc('git merge --no-ff'.split() + ['origin/master'])
     runproc('git merge --no-ff'.split() + [cur_branch])
     print '# git push'
     print '# fab -H theblacktux-staging deploy'
@@ -138,7 +172,11 @@ def cmd_merge_wip(args):      # pylint: disable=W0613
     cur_branch = get_cur_branch()
     print 'CURRENT:', cur_branch
     runproc('git fetch origin'.split())
+    # TODO: 'git merge -X theirs ...'
     runproc('git merge --no-ff origin/wip'.split())
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::: MAIN
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -149,6 +187,7 @@ def main():
     parser.add_argument('--wip', action='store_const',
                         const=cmd_merge_wip, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
+    parser.add_argument('--nowip', dest='nowip', action='store_true')
     parser.add_argument('-p', '--push', action='store_const',
                         const=cmd_push, dest='func')
     parser.add_argument('label', type=str, nargs='*')
