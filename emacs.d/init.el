@@ -2,12 +2,13 @@
 ;;;
 
 (cd "~/src/theblacktux")
-(add-to-list 'load-path "~/.emacs.d/internet")
+(setq exec-path (append exec-path '("/Users/johnm/venv/bin/"))) ;; for Pylint et al
 
-(when t
-  (require 'package)
-  (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
+;; ;(add-to-list 'load-path "~/.emacs.d/internet")
+;; (when t
+;;   (require 'package)
+;;   (package-initialize)
+;;   (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
@@ -30,100 +31,106 @@
 
 ;; :::::::::::::::::::::::::::::::::::::::::::::::::: PACKAGE TWEAKS
 
+;; package-install ack
 (require 'ack)
 
-;; colorize compliation buffers
-(ignore-errors
-  (require 'ansi-color)
-  (defun my-colorize-compilation-buffer ()
-    (when (eq major-mode 'compilation-mode)
-      (ansi-color-apply-on-region compilation-filter-start (point-max))))
-  (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
+;; ;; ........................................ Compilation
+;; (setq compilation-scroll-output t)
+;; ;; (setq compilation-scroll-output 'first-error)
 
-
-(add-hook 'after-init-hook #'global-flycheck-mode)
-
-(when t
-  (require 'ido)
-  (setq ido-enable-flex-matching t)
-  (ido-everywhere)
-  (ido-mode t))
-
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-
-(when t
-  (add-to-list 'auto-mode-alist '("\\.mak\\'" . makefile-nmake-mode) auto-mode-alist))
-
-(when t
-  (add-to-list 'auto-mode-alist '("\\.ngx\\'" . nginx-mode)))
-
-
-(which-function-mode)
-
+;; ;; colorize compliation buffers
+;; (ignore-errors
+;;   (require 'ansi-color)
+;;   (defun my-colorize-compilation-buffer ()
+;;     (when (eq major-mode 'compilation-mode)
+;;       (ansi-color-apply-on-region compilation-filter-start (point-max))))
+;;   (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
 
 
 ;; (when t
 ;;   (require 'dockerfile-mode)
 ;;   (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
-
-(when t
-  (require 'sass-mode)
-  (add-to-list 'auto-mode-alist '("\\.scss\\'" . sass-mode)))
-
-(when t
-  (autoload 'ssh-config-mode "ssh-config-mode" t)
-  (add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
-  (add-hook 'ssh-config-mode-hook 'turn-on-font-lock))
-
-(when t
-  (require 'yaml-mode)
-  (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode)))
-
-;; :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: CUSTOM
-;; TODO: flycheck-error
+;;   (add-to-list 'auto-mode-alist '("\\.docker\\'" . dockerfile-mode)))
 
 
+;; ;; ........................................ Flycheck
+;; (add-hook 'after-init-hook #'global-flycheck-mode)
+;; (require 'flycheck-color-mode-line)
+;; (eval-after-load 'flycheck
+;;   '(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))
+;; ;; (eval-after-load 'flycheck
+;; ;;   '(custom-set-variables
+;; ;;    '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages)))
 
-(defun jta-highlight-django-template ()
-  (interactive)
-  (highlight-regexp "{%.+%}" 'hi-yellow) ;;tags
-  (highlight-regexp "{{.+?}}" 'underline)) ;;variables
+;; ;; ........................................ Ido
+;; (when t
+;;   (require 'ido)
+;;   (setq ido-enable-flex-matching t)
+;;   (ido-everywhere)
+;;   (ido-mode t))
 
-;; later:
-;; M-x package-install js2-refactor
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
-;; (custom-set-variables  
-;;  '(js2-basic-offset 2)  
-;;  '(js2-bounce-indent-p t)  
-;; )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(flycheck-python-pylint-executable "/Users/johnm/src/venv/bin/pylint")
- '(inhibit-startup-screen t)
- '(tool-bar-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(put 'narrow-to-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
+;; (when t
+;;   (add-to-list 'auto-mode-alist '("\\.mak\\'" . makefile-mode)))
 
+;; (when t
+;;   (add-to-list 'auto-mode-alist '("\\.ngx\\'" . nginx-mode)))
 
-;; highlight Django model references:
-;; # Hi-lock: (("through" (0 (quote hi-pink) prepend)))
-;; # Hi-lock: (("ManyToManyField" (0 (quote hi-yellow) prepend)))
-;; # Hi-lock: (("related_name" (0 (quote hi-pink) prepend)))
-;; # Hi-lock: (("ForeignKey" (0 (quote hi-yellow) prepend)))
+(which-function-mode)
+
+;; (when t
+;;   (require 'sass-mode)
+;;   (add-to-list 'auto-mode-alist '("\\.scss\\'" . sass-mode)))
+
+;; (when t
+;;   (autoload 'ssh-config-mode "ssh-config-mode" t)
+;;   (add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
+;;   (add-hook 'ssh-config-mode-hook 'turn-on-font-lock))
+
+;; ;; Solarized: (load-theme "tango")
+;; ;; http://pawelbx.github.io/emacs-theme-gallery/
+
+;; (when t
+;;   (require 'yaml-mode)
+;;   (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode) '("\\.yml.tmpl$" . yaml-mode)))
 
 
-;; XXXX
-;; (defface font-lock-operator-face
-;;   '((((class color)
-;;       :background "darkseagreen2")))
-;;   "Basic face for highlighting."
-;;   :group 'basic-faces)
+;; ;; :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: CUSTOM
+;; ;; TODO: flycheck-error
+
+
+
+;; (defun jta-highlight-django-template ()
+;;   (interactive)
+;;   (highlight-regexp "{%.+%}" 'hi-yellow) ;;tags
+;;   (highlight-regexp "{{.+?}}" 'underline)) ;;variables
+
+;; ;; later:
+;; ;; M-x package-install js2-refactor
+
+;; ;; (custom-set-variables  
+;; ;;  '(js2-basic-offset 2)  
+;; ;;  '(js2-bounce-indent-p t)  
+;; ;; )
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(flycheck-python-pylint-executable "/Users/johnm/venv/bin/pylint")
+;;  '(inhibit-startup-screen t)
+;;  '(python-shell-interpreter "/Users/johnm/venv/bin/python")
+;;  '(tool-bar-mode nil))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  )
+;; (put 'narrow-to-region 'disabled nil)
+;; (put 'downcase-region 'disabled nil)
+
+
+;; ;;; init.el ends here
+
