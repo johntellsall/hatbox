@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 
+# pylint: disable=C0103
+
 import re, subprocess
 
 tcp_pat = re.compile(
     r'tcp.+?'
-    '(?P<addr>	[0-9.]+):'      # IP address
-    '(?P<port>	\d+)'           # port
-    '\s.+LISTEN',
+    r'(?P<addr>	[0-9.]+):'      # IP address
+    r'(?P<port>	\S+)'           # port number/service name
+    r'\s.+LISTEN',
     re.VERBOSE)
 
-lines = subprocess.check_output('boot2docker ssh netstat -an'.split()).split('\n')
-tcp_servers = (m.groupdict() for m in filter(None, (tcp_pat.match(line) for line in lines)))
+lines = subprocess.check_output(
+    'boot2docker ssh netstat -an'.split()
+).split('\n')
+tcp_servers = (m.groupdict() for m in filter(
+    None, (tcp_pat.match(line) for line in lines)))
 print list(tcp_servers)

@@ -4,6 +4,8 @@
 #     . $(brew --prefix)/etc/bash_completion
 # fi
 
+export PATH=${PATH}":${HOME}/.gem/ruby/2.0.0/bin"
+
 if command -v boot2docker >& /dev/null ; then
     $(boot2docker shellinit) 2> /dev/null
 fi

@@ -3,7 +3,7 @@
 # pylint: disable=C0111
 
 '''
-commit.py -- BlackTux-related dev workflow
+commit.py -- TheBlackTux-related dev workflow
 
 workflow:
 	# check out new branch based on issue ID and title
@@ -22,6 +22,8 @@ Merge origin wip into local branch:
 
 Checkout staging, merge branch into it:
 	commit.py --stage
+
+
 '''
 
 import argparse
@@ -33,6 +35,7 @@ import sys
 ISSUE_TYPES = {
     'e': 'enhancements',
     'b': 'bugs',
+    's': 'sysadmin',
 }
 
 def get_cur_branch():
@@ -74,22 +77,7 @@ def split_message_paths(args):
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::: COMMANDS
 
-
-def cmd_checkout(args):
-    """
-    Given an Issue title and ID, check out a new branch based off origin/wip.
-    Option "--nowip" means new branch will be based on current branch.
-
-    NORMAL BRANCH (OFF WIP)
-    commit.py -c ' My Title #123b'
-    => git checkout -c '123b-my-title' origin/wip
-
-    CONTINUING A BRANCH
-    git checkout 2186-simple-line-items-modeling
-    commit.py -c --nowip 'Line Item vs Checkout #2187'
-    => git checkout -b 2187-line-item-vs-checkout 2186-simple-line-items-modeling
-    """
-
+def cmd_checkout_newbranch(args):
     parent_branch = get_cur_branch() if args.nowip else 'origin/wip'
 
     title_pat = re.compile(r'(.+)#(\d{3,}[a-z]*)')
@@ -116,6 +104,46 @@ def cmd_checkout(args):
         print ' '.join(cmd)
         return
     runproc(cmd)
+
+def cmd_checkout_oldbranch(args):
+    issue_id = ' '.join(args.label)
+    if not re.match(r'^\d+$', issue_id):
+        sys.exit('{}: bogus issue ID'.format(issue_id))
+
+    lines = filter(None, subprocess.check_output("git branch -a --list '*/{}-*'".format(issue_id),
+                                                 shell=True).split('\n'))
+    if not lines:
+        sys.exit('{}: branch for issue ID not found'.format(issue_id))
+    elif len(lines) != 1:
+        sys.exit('{}: multiple branches'.format(issue_id))
+
+    branch = lines[0].strip()
+    shortname = re.compile(r'/({}.*)'.format(issue_id)).search(branch).group(1)
+
+    cmd = ['git', 'checkout', '-b', shortname, branch]
+    if args.dry_run:
+        print ' '.join(cmd)
+        return
+    runproc(cmd)   
+
+def cmd_checkout(args):
+    """
+    Given an Issue title and ID, check out a new branch based off origin/wip.
+    Option "--nowip" means new branch will be based on current branch.
+
+    NORMAL BRANCH (OFF WIP)
+    commit.py -c ' My Title #123b'
+    => git checkout -c '123b-my-title' origin/wip
+
+    CONTINUING A BRANCH
+    git checkout 2186-simple-line-items-modeling
+    commit.py -c --nowip 'Line Item vs Checkout #2187'
+    => git checkout -b 2187-line-item-vs-checkout 2186-simple-line-items-modeling
+    """
+    issue_num_only = re.compile(r'^#?\d+$')
+    if issue_num_only.match(' '.join(args.label)):
+        return cmd_checkout_oldbranch(args)
+    return cmd_checkout_newbranch(args)
 
 
 def cmd_commit(args):
@@ -179,6 +207,7 @@ def cmd_merge_wip(args):      # pylint: disable=W0613
     runproc('git fetch origin'.split())
     # TODO: 'git merge -X theirs ...'
     runproc('git merge --no-ff origin/wip'.split())
+    runproc('git merge --no-ff origin/master'.split())
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::: MAIN
 

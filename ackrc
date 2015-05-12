@@ -1,7 +1,38 @@
---ignore-dir=migrations
+--ignore-dir=.npm
 --ignore-dir=bin
+--ignore-dir=collected
 --ignore-dir=htmlcov
 --ignore-dir=lib/python2.7
+--ignore-dir=migrations
+--ignore-dir=report_builder
+--ignore-dir=vendor
+
+--ignore-file=ext:sql
+
+--ignore-file=match:.*/admin/
+
+# generated files
 --ignore-file=ext:pyc
 --ignore-file=is:TAGS
+--ignore-file=is:master-styles.css
+--ignore-file=is:velocity.js
+--ignore-file=match:flycheck_
+
+# ignore migrations
+--ignore-file=match:/\d{4}[\d\w_]*\.py/
+
+# ignore packages
+# compare with: egrep -l eval static/js/*.js
+--ignore-file=match:.*init.js
+--ignore-file=match:.*min.js
+--ignore-file=match:static/js/.*packed.js
+--ignore-file=is:common.js
+--ignore-file=is:picturefill.js
+--ignore-file=match:static/js/flexslider.js
+--ignore-file=match:jquery.*
+
+
+# ignore tests
+--ignore-file=match:.*spec.js
+
 --type-set=css:ext:scss
