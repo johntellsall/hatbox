@@ -7,7 +7,7 @@ commit.py -- TheBlackTux-related dev workflow
 
 workflow:
 	# check out new branch based on issue ID and title
-	# Parent will be origin/wip
+	# Parent will be origin/staging
 	commit.py -c ' My Title #123'
 	# edit files
 	# commit message refers to issue
@@ -17,8 +17,8 @@ workflow:
 	# push changes upstream, to Enhancement
 	commit.py --push e
 
-Merge origin wip into local branch:
-	commit.py --wip
+Merge origin staging into local branch:
+	commit.py --staging
 
 Checkout staging, merge branch into it:
 	commit.py --stage
@@ -78,7 +78,7 @@ def split_message_paths(args):
 # :::::::::::::::::::::::::::::::::::::::::::::::::: COMMANDS
 
 def cmd_checkout_newbranch(args):
-    parent_branch = get_cur_branch() if args.nowip else 'origin/wip'
+    parent_branch = get_cur_branch() if args.nostaging else 'origin/staging'
 
     title_pat = re.compile(r'(.+)#(\d{3,}[a-z]*)')
     titlem = title_pat.search(' '.join(args.label))
@@ -128,16 +128,16 @@ def cmd_checkout_oldbranch(args):
 
 def cmd_checkout(args):
     """
-    Given an Issue title and ID, check out a new branch based off origin/wip.
-    Option "--nowip" means new branch will be based on current branch.
+    Given an Issue title and ID, check out a new branch based off origin/staging.
+    Option "--nostaging" means new branch will be based on current branch.
 
-    NORMAL BRANCH (OFF WIP)
+    NORMAL BRANCH (OFF STAGING)
     commit.py -c ' My Title #123b'
-    => git checkout -c '123b-my-title' origin/wip
+    => git checkout -c '123b-my-title' origin/staging
 
     CONTINUING A BRANCH
     git checkout 2186-simple-line-items-modeling
-    commit.py -c --nowip 'Line Item vs Checkout #2187'
+    commit.py -c --nostaging 'Line Item vs Checkout #2187'
     => git checkout -b 2187-line-item-vs-checkout 2186-simple-line-items-modeling
     """
     issue_num_only = re.compile(r'^#?\d+$')
@@ -206,12 +206,12 @@ def cmd_stage_merge(args):      # pylint: disable=W0613
     print '# git push'
     print '# fab -H theblacktux-staging deploy'
 
-def cmd_merge_wip(args):      # pylint: disable=W0613
+def cmd_merge_staging(args):      # pylint: disable=W0613
     cur_branch = get_cur_branch()
     print 'CURRENT:', cur_branch
     runproc('git fetch origin'.split())
     # TODO: 'git merge -X theirs ...'
-    runproc('git merge --no-ff origin/wip'.split())
+    runproc('git merge --no-ff origin/staging'.split())
     runproc('git merge --no-ff origin/master'.split())
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::: MAIN
@@ -223,10 +223,10 @@ def main():
                         const=cmd_checkout, dest='func')
     parser.add_argument('--stagemerge', action='store_const',
                         const=cmd_stage_merge, dest='func')
-    parser.add_argument('--wip', action='store_const',
-                        const=cmd_merge_wip, dest='func')
+    parser.add_argument('--staging', action='store_const',
+                        const=cmd_merge_staging, dest='func')
     parser.add_argument('-n', dest='dry_run', action='store_true')
-    parser.add_argument('--nowip', dest='nowip', action='store_true')
+    parser.add_argument('--nostaging', dest='nostaging', action='store_true')
     parser.add_argument('-p', '--push', action='store_const',
                         const=cmd_push, dest='func')
     parser.add_argument('label', type=str, nargs='*')
