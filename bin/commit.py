@@ -43,9 +43,9 @@ def get_cur_branch():
         'git rev-parse --abbrev-ref HEAD'.split()
     ).rstrip()
 
-def get_issue_num():
-    tux_pat = re.compile(r'(\d{4,}).+')
-    match = tux_pat.search(get_cur_branch())
+def get_issue_num(mystr):
+    tux_pat = re.compile(r'#?(\d{4,}).+')
+    match = tux_pat.search(mystr)
     return match.group(1) if match else None
 
 def is_theblacktux():
@@ -153,13 +153,18 @@ def cmd_commit(args):
     USAGE: commit.py 'added beer field' [file...]
     """
 
-    issue_num = get_issue_num()
+    # feature: show issue number
+    # Ex: commit.py => "ISSUE: 123"
+    issue_num = get_issue_num(get_cur_branch())
     if not args.label:
         print 'ISSUE:', issue_num
         return
 
     words, paths = split_message_paths(args.label)
     message = ' '.join(words)
+    if get_issue_num(message):
+        sys.exit("Try commit.py -c (issue number)")
+        
     if issue_num:
         message = '{}, refs #{}'.format(message, issue_num)
 
