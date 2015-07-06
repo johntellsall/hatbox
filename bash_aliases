@@ -38,17 +38,20 @@ if command -v ack-grep >& /dev/null ; then
 fi
 
 alias ap='ack --py'
-alias c='commit.py'
+# alias c='commit.py'
+alias c='~/src/theblacktux/scripts/commit.py'
 alias ls='ls -CF'
+alias mk='make -f jm.mak'
+alias pylint='/Users/johnm/venv/bin/pylint'
 
 alias gb='git branch'
-alias gc='git commit'
-alias gcb='git checkout -b'
-alias gcm='git commit -m'
-alias gd='git diff'
+# alias gc='git commit'
+# alias gcb='git checkout -b'
+# alias gcm='git commit -m'
+alias gd='git wdiff'
 alias gdh='git diff HEAD^'
 alias gds='git diff --stat'
-alias gg='git log --oneline --abbrev-commit --all --graph --decorate --color'
+#alias gg='git log --oneline --abbrev-commit --all --graph --decorate --color'
 alias gst='git status'
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::: DOCKER ALIASES
